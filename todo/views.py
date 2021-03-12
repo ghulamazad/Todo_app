@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.db import IntegrityError
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, authenticate
 
 
 def home(request):
@@ -36,7 +36,24 @@ def signupuser(request):
         else:
             context["error"] = "Password does not match."
     context["form"] = UserCreationForm()
-    return render(request, 'todo/signupuser.html', context=context)
+    return render(request, 'todo/signup.html', context=context)
+
+
+def loginuser(request):
+    context = {
+    }
+    if request.method == "POST":
+        # check user is authenticate or not
+        user = authenticate(
+            request=request, username=request.POST["username"], password=request.POST["password"])
+        if user is None:
+            context["error"] = "Password does not match."
+        else:
+            login(request, user=user)
+            return redirect('home')
+
+    context["form"] = AuthenticationForm()
+    return render(request, 'todo/login.html', context=context)
 
 
 def logoutuser(request):
