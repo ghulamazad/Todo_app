@@ -5,6 +5,10 @@ from django.db import IntegrityError
 from django.contrib.auth import login
 
 
+def home(request):
+    return render(request, "todo/home.html")
+
+
 def signupuser(request):
     context = {
     }
