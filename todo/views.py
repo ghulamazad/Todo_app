@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.db import IntegrityError
@@ -84,3 +84,19 @@ def create_todo(request):
 
     context["form"] = TodoForm()
     return render(request, "todo/create-todo.html", context=context)
+
+
+def view_todo(request, todo_id):
+    todo = get_object_or_404(Todo, pk=todo_id, user=request.user)
+    context = {
+        "todo": todo
+    }
+    if request.method == "POST":
+        try:
+            form = TodoForm(request.POST, instance=todo)
+            form.save()
+            return redirect('home')
+        except Exception:
+            context["error"] = "Something bad happen. Please try again"
+    context["form"] = TodoForm(instance=todo)
+    return render(request, "todo/view-todo.html", context=context)
