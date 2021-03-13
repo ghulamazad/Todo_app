@@ -6,18 +6,29 @@ from django.contrib.auth import login, logout, authenticate
 from todo.forms import TodoForm
 from todo.models import Todo
 from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 
 
 def home(request):
     return render(request, "todo/home.html")
 
 
+@login_required
 def currenttodos(request):
     todos = Todo.objects.filter(user=request.user, datecompleted__isnull=True)
     context = {
         "todos": todos
     }
     return render(request, "todo/currenttodos.html", context=context)
+
+
+@login_required
+def completed_todos(request):
+    todos = Todo.objects.filter(user=request.user, datecompleted__isnull=False)
+    context = {
+        "todos": todos
+    }
+    return render(request, "todo/completed-todos.html", context=context)
 
 
 def signupuser(request):
@@ -63,12 +74,14 @@ def loginuser(request):
     return render(request, 'todo/login.html', context=context)
 
 
+@login_required
 def logoutuser(request):
     if request.method == "POST":
         logout(request)
         return redirect("home")
 
 
+@login_required
 def create_todo(request):
     context = {}
     if request.method == "POST":
@@ -85,6 +98,7 @@ def create_todo(request):
     return render(request, "todo/create-todo.html", context=context)
 
 
+@login_required
 def view_todo(request, todo_id):
     todo = get_object_or_404(Todo, pk=todo_id, user=request.user)
     context = {
@@ -101,6 +115,7 @@ def view_todo(request, todo_id):
     return render(request, "todo/view-todo.html", context=context)
 
 
+@login_required
 def completed_todo(request, todo_id):
     todo = get_object_or_404(Todo, pk=todo_id, user=request.user)
     if request.method == "POST":
@@ -109,6 +124,7 @@ def completed_todo(request, todo_id):
         return redirect('currenttodos')
 
 
+@login_required
 def delete_todo(request, todo_id):
     todo = get_object_or_404(Todo, pk=todo_id, user=request.user)
     if request.method == "POST":
