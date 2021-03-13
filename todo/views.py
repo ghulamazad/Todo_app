@@ -4,10 +4,17 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.contrib.auth import login, logout, authenticate
 from todo.forms import TodoForm
+from todo.models import Todo
 
 
 def home(request):
-    return render(request, "todo/home.html")
+    if request.user.is_anonymous:
+        return render(request, "todo/home.html")
+    todos = Todo.objects.filter(user=request.user, datecompleted__isnull=True)
+    context = {
+        "todos": todos
+    }
+    return render(request, "todo/home.html", context=context)
 
 
 def currenttodos(request):
