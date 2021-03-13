@@ -7,4 +7,9 @@
     {{ form.as_p }}
     <button type="submit">Update</button>
 </form>
+
+<form action="{% url 'completed_todo' todo.id %}" method="POST">
+    {% csrf_token %}
+    <button type="submit">Completed</button>
+</form>
 {% endblock %}

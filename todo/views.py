@@ -5,20 +5,19 @@ from django.db import IntegrityError
 from django.contrib.auth import login, logout, authenticate
 from todo.forms import TodoForm
 from todo.models import Todo
+from django.utils import timezone
 
 
 def home(request):
-    if request.user.is_anonymous:
-        return render(request, "todo/home.html")
+    return render(request, "todo/home.html")
+
+
+def currenttodos(request):
     todos = Todo.objects.filter(user=request.user, datecompleted__isnull=True)
     context = {
         "todos": todos
     }
-    return render(request, "todo/home.html", context=context)
-
-
-def currenttodos(request):
-    return render(request, "todo/currenttodos.html")
+    return render(request, "todo/currenttodos.html", context=context)
 
 
 def signupuser(request):
@@ -58,7 +57,7 @@ def loginuser(request):
             context["error"] = "Password does not match."
         else:
             login(request, user=user)
-            return redirect('home')
+            return redirect('currenttodos')
 
     context["form"] = AuthenticationForm()
     return render(request, 'todo/login.html', context=context)
@@ -78,7 +77,7 @@ def create_todo(request):
             new_todo = todo.save(commit=False)
             new_todo.user = request.user
             new_todo.save()
-            return redirect('home')
+            return redirect('currenttodos')
         except Exception:
             context["error"] = "Something bad happen. Please try again"
 
@@ -95,8 +94,16 @@ def view_todo(request, todo_id):
         try:
             form = TodoForm(request.POST, instance=todo)
             form.save()
-            return redirect('home')
+            return redirect('currenttodos')
         except Exception:
             context["error"] = "Something bad happen. Please try again"
     context["form"] = TodoForm(instance=todo)
     return render(request, "todo/view-todo.html", context=context)
+
+
+def completed_todo(request, todo_id):
+    todo = get_object_or_404(Todo, pk=todo_id, user=request.user)
+    if request.method == "POST":
+        todo.datecompleted = timezone.now()
+        todo.save()
+        return redirect('currenttodos')
