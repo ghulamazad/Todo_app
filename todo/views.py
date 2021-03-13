@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.contrib.auth import login, logout, authenticate
+from todo.forms import TodoForm
 
 
 def home(request):
@@ -60,3 +61,19 @@ def logoutuser(request):
     if request.method == "POST":
         logout(request)
         return redirect("home")
+
+
+def create_todo(request):
+    context = {}
+    if request.method == "POST":
+        try:
+            todo = TodoForm(request.POST)
+            new_todo = todo.save(commit=False)
+            new_todo.user = request.user
+            new_todo.save()
+            return redirect('home')
+        except Exception:
+            context["error"] = "Something bad happen. Please try again"
+
+    context["form"] = TodoForm()
+    return render(request, "todo/create-todo.html", context=context)
