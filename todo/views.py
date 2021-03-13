@@ -107,3 +107,10 @@ def completed_todo(request, todo_id):
         todo.datecompleted = timezone.now()
         todo.save()
         return redirect('currenttodos')
+
+
+def delete_todo(request, todo_id):
+    todo = get_object_or_404(Todo, pk=todo_id, user=request.user)
+    if request.method == "POST":
+        todo.delete()
+        return redirect('currenttodos')

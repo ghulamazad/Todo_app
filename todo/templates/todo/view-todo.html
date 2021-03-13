@@ -12,4 +12,9 @@
     {% csrf_token %}
     <button type="submit">Completed</button>
 </form>
+
+<form action="{% url 'delete_todo' todo.id %}" method="POST">
+    {% csrf_token %}
+    <button type="submit">Delete</button>
+</form>
 {% endblock %}
